@@ -1,3 +1,4 @@
+from audiomentations import Compose, AddGaussianNoise, LowPassFilter, TanhDistortion
 from PIL import Image
 from tqdm import tqdm
 
@@ -6,6 +7,9 @@ import librosa
 import os
 import pandas as pd
 import numpy as np
+import torch
+import torchvision.transforms as Tv
+
 
 
 
@@ -33,7 +37,16 @@ def get_spectrograms(filepath : str,
     sig, rate = librosa.load(os.path.join(filepath, primary_label,filename), sr=args.sample_rate, offset=None, duration = 30)
     
     if augmentations:
-        pass
+        augment = Tv.Compose([
+            Tv.ToTensor(),
+            AddGaussianNoise(min_amplitude=0.001, max_amplitude=0.015, p=0.4),
+            LowPassFilter(min_cutoff_freq=100,
+                          max_cutoff_freq=7500,
+                          p = 0.4),
+            TanhDistortion(p=0.4),
+            lambda x : x.numpy(),
+        ])
+        
     
     # Split signal into five second chunks
     sig_splits = []

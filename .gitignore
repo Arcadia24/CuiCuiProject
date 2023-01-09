@@ -2,4 +2,6 @@ dataset/*
 cuitcuit/*
 save/*
 wandb/*
+lightning_logs/*
+Demo.py
 ```

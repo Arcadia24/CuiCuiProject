@@ -218,3 +218,33 @@ class VisionTransformer(nn.Module):
         x = self.head(cls_token_final)
         
         return x
+    
+class AutoEncoderLSTM(nn.Module):
+    def __init__(self, feature_extractor : nn.Module, output_dim : int, num_classes : int) -> None:
+        super().__init__()
+        self.feature_extractor = feature_extractor
+        self.decoder =  nn.LSTM(1280, output_dim, 3, batch_first = True)
+        self.classifier = nn.Linear(output_dim, num_classes)
+        
+    def forward(self, x : torch.Tensor) -> torch.Tensor:
+        x = self.feature_extractor(x)
+        x = x.squeeze(1)
+        x, (h, c) = self.decoder(x)
+        return self.classifier(x)
+
+class AutoEncoderAtt(nn.Module):
+    def __init__(self, feature_extractor : nn.Module, output_dim : int,num_classes : int) -> None:
+        super().__init__()
+        self.feature_extractor = feature_extractor
+        decoder_layer = nn.TransformerDecoderLayer(d_model=output_dim, nhead=16, batch_first= True)
+        self.transformer_decoder = nn.TransformerDecoder(decoder_layer, num_layers=6)
+        self.memory = torch.zeros(32, 1280).cuda()
+        self.classifier = nn.Linear(output_dim, num_classes)
+        
+    def forward(self, x : torch.Tensor) -> torch.Tensor:
+        x = self.feature_extractor(x)
+        x = self.transformer_decoder(x, self.memory)
+        return self.classifier(x)
+
+
+        
