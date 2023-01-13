@@ -4,4 +4,6 @@ save/*
 wandb/*
 lightning_logs/*
 Demo.py
+website/*
+streamlitweb/*
 ```

@@ -64,6 +64,8 @@ def get_spectrograms(filepath : str,
     saved_specname = []
     ens = []
     for chunk in sig_splits:
+        if augmentations:
+            chunk = augment(chunk)
         
         mel_spec = librosa.feature.melspectrogram(y=chunk, 
                                                   sr=args.sample_rate, 
